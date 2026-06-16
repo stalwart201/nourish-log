@@ -1,0 +1,27 @@
+@import 'tailwindcss';
+
+/* Main theme details and accents */
+/* SELF NOTE - CONVENTION:
+     - Layout / spacing / typography → Tailwind utilities
+     - Phase-reactive accent color   → style="color: var(--color-accent)" inline
+     Never use Tailwind color classes for anything that changes per phase.
+  */
+@theme {
+  --color-accent: #f07a4a;
+  --color-accent-soft: #3a241f;
+  --color-bg: #faf5ee;
+  --color-bg2: #f3ece1;
+  --color-card: #ffffff;
+  --color-ink: #23201d;
+  --color-muted: #8c857c;
+  --color-line: #ece4d8;
+}
+
+[data-theme='dark'] {
+  --color-bg: #1a1714;
+  --color-bg2: #211d19;
+  --color-card: #262019;
+  --color-ink: #f4ede2;
+  --color-muted: #9c9286;
+  --color-line: #352e26;
+}

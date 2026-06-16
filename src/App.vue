@@ -1,11 +1,15 @@
-<script setup lang="ts"></script>
+<script setup lang="ts">
+import '@/assets/main.css'
+import TabBar from '@/components/layout/TabBar.vue'
+import { useUIStore } from '@/stores/ui.store'
+
+const uiStore = useUIStore()
+</script>
 
 <template>
-  <h1>You did it!</h1>
-  <p>
-    Visit <a href="https://vuejs.org/" target="_blank" rel="noopener">vuejs.org</a> to read the
-    documentation
-  </p>
+  <!-- Binding for future -->
+  <div :data-theme="uiStore.theme">
+    <TabBar />
+    <RouterView />
+  </div>
 </template>
-
-<style scoped></style>
