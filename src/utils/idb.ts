@@ -1,4 +1,10 @@
-import { createStore, get as idbGet, set as idbSet, del as idbDel, keys as idbKeys } from 'idb-keyval'
+import {
+  createStore,
+  get as idbGet,
+  set as idbSet,
+  del as idbDel,
+  keys as idbKeys,
+} from 'idb-keyval'
 
 const store = createStore('nourish-log', 'kv')
 

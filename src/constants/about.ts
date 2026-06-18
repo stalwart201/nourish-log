@@ -31,23 +31,27 @@ const DAILY_HABITS: string[] = [
 
 const WHEY_SCHEDULE = '1 scoop pre-gym (1:15 PM) + 1 scoop in the evening — 54g protein locked in.'
 
-const MEAT_WEIGHT_NOTE = "Meat weights are boneless cooked — \"buy raw\" notes include bone and cooking loss."
+const MEAT_WEIGHT_NOTE =
+  'Meat weights are boneless cooked — "buy raw" notes include bone and cooking loss.'
 
 export const PHASE_INFO: Record<PhaseKey, PhaseInfo> = {
   phase1: {
-    oilAllowance: "25g (~225 kcal) — measure into a bowl each morning. Once it's gone, you're done.",
+    oilAllowance:
+      "25g (~225 kcal) — measure into a bowl each morning. Once it's gone, you're done.",
     wheySchedule: WHEY_SCHEDULE,
     meatWeightNote: MEAT_WEIGHT_NOTE,
     dailyHabits: DAILY_HABITS,
   },
   phase2: {
-    oilAllowance: "18g (~162 kcal) — measure into a bowl each morning. Once it's gone, you're done.",
+    oilAllowance:
+      "18g (~162 kcal) — measure into a bowl each morning. Once it's gone, you're done.",
     wheySchedule: WHEY_SCHEDULE,
     meatWeightNote: MEAT_WEIGHT_NOTE,
     dailyHabits: DAILY_HABITS,
   },
   phase3: {
-    oilAllowance: "12g (~108 kcal) — measure into a bowl each morning. Once it's gone, you're done.",
+    oilAllowance:
+      "12g (~108 kcal) — measure into a bowl each morning. Once it's gone, you're done.",
     wheySchedule: WHEY_SCHEDULE,
     meatWeightNote: MEAT_WEIGHT_NOTE,
     dailyHabits: DAILY_HABITS,
