@@ -1,3 +1,4 @@
+import { ref } from 'vue'
 import { defineStore } from 'pinia'
 import { get, set } from '@/utils/idb'
 
@@ -9,20 +10,20 @@ export interface SyncQueueEntry {
   ts: number
 }
 
-export const useSyncStore = defineStore('sync', {
-  state: () => ({
-    status: 'idle' as SyncStatus,
-    session: null as unknown,
-    queue: [] as SyncQueueEntry[],
-    lastSyncedAt: null as string | null,
-  }),
-  actions: {
-    async loadQueueFromIDB() {
-      this.queue = (await get<SyncQueueEntry[]>('sync-queue')) ?? []
-    },
-    async push(key: string, value: unknown) {
-      this.queue = [...this.queue, { key, value, ts: Date.now() }]
-      await set('sync-queue', this.queue)
-    },
-  },
+export const useSyncStore = defineStore('sync', () => {
+  const status = ref<SyncStatus>('idle')
+  const session = ref<unknown>(null)
+  const queue = ref<SyncQueueEntry[]>([])
+  const lastSyncedAt = ref<string | null>(null)
+
+  async function loadQueueFromIDB() {
+    queue.value = (await get<SyncQueueEntry[]>('sync-queue')) ?? []
+  }
+
+  async function push(key: string, value: unknown) {
+    queue.value = [...queue.value, { key, value, ts: Date.now() }]
+    await set('sync-queue', queue.value)
+  }
+
+  return { status, session, queue, lastSyncedAt, loadQueueFromIDB, push }
 })

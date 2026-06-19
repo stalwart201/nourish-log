@@ -88,6 +88,12 @@ export const EATING_HABITS: DosDonts = {
   ],
 }
 
+export const CHECKLIST_LABELS: Record<'protein' | 'deficit' | 'move', string> = {
+  protein: 'Hit my protein target',
+  deficit: 'Stayed in deficit',
+  move: 'Got my steps / moved',
+}
+
 export const SUPPLEMENTS: Supplement[] = [
   {
     name: 'Vitamin D3',

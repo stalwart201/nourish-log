@@ -1,3 +1,4 @@
+import { ref, computed } from 'vue'
 import { defineStore } from 'pinia'
 import { get, set } from '@/utils/idb'
 import { scaleFoodItem } from '@/utils/macroCalc'
@@ -12,67 +13,96 @@ function applyAccentColor(phase: PhaseKey): void {
   document.documentElement.style.setProperty('--color-accent', PHASE_TARGETS[phase].accentColor)
 }
 
-export const useMealStore = defineStore('meal', {
-  state: () => ({
-    phase: 'phase1' as PhaseKey,
-    activeDay: todayDayKey(),
-    checks: {} as Record<string, true>,
-    edits: {} as Record<string, number>,
-    startDate: null as string | null,
-  }),
-  getters: {
-    phaseTarget(state) {
-      return PHASE_TARGETS[state.phase]
-    },
-    dayMacroTotals(state): { kcal: number; protein: number } {
-      let kcal = 0
-      let protein = 0
-      const day = MEAL_DATA[state.phase][state.activeDay]
-      for (const meal of day.meals) {
-        meal.items.forEach((item, itemIdx) => {
-          const key = `${state.phase}|${state.activeDay}|${meal.id}|${itemIdx}`
-          if (!state.checks[key]) return
-          const scaled = scaleFoodItem(item, state.edits[key] ?? 1)
-          kcal += scaled.kcal
-          protein += scaled.protein
-        })
-      }
-      return { kcal, protein }
-    },
-  },
-  actions: {
-    async loadFromIDB() {
-      this.phase = (await get<PhaseKey>('phase')) ?? 'phase1'
-      this.checks = (await get<Record<string, true>>('checks')) ?? {}
-      this.edits = (await get<Record<string, number>>('edits')) ?? {}
-      this.startDate = (await get<string>('startDate')) ?? null
-      applyAccentColor(this.phase)
-    },
-    async setPhase(phase: PhaseKey) {
-      this.phase = phase
-      applyAccentColor(phase)
-      await set('phase', phase)
-    },
-    setDay(day: DayKey) {
-      this.activeDay = day
-    },
-    async toggleCheck(key: string) {
-      if (this.checks[key]) delete this.checks[key]
-      else this.checks[key] = true
-      await set('checks', this.checks)
-    },
-    async setEdit(key: string, mult: number) {
-      if (mult === 0) {
-        // Skip wins: an item cannot be both checked and have mult=0.
-        this.edits[key] = 0
-        delete this.checks[key]
-        await set('checks', this.checks)
-      } else if (mult === 1) {
-        delete this.edits[key]
-      } else {
-        this.edits[key] = mult
-      }
-      await set('edits', this.edits)
-    },
-  },
+export const useMealStore = defineStore('meal', () => {
+  const phase = ref<PhaseKey>('phase1')
+  const activeDay = ref<DayKey>(todayDayKey())
+  const checks = ref<Record<string, true>>({})
+  const edits = ref<Record<string, number>>({})
+  const startDate = ref<string | null>(null)
+
+  const phaseTarget = computed(() => PHASE_TARGETS[phase.value])
+
+  const dayPlannedTotals = computed((): { kcal: number; protein: number } => {
+    let kcal = 0
+    let protein = 0
+    const day = MEAL_DATA[phase.value][activeDay.value]
+    for (const meal of day.meals) {
+      meal.items.forEach((item, itemIdx) => {
+        const key = `${phase.value}|${activeDay.value}|${meal.id}|${itemIdx}`
+        const scaled = scaleFoodItem(item, edits.value[key] ?? 1)
+        kcal += scaled.kcal
+        protein += scaled.protein
+      })
+    }
+    return { kcal, protein }
+  })
+
+  const dayMacroTotals = computed((): { kcal: number; protein: number } => {
+    let kcal = 0
+    let protein = 0
+    const day = MEAL_DATA[phase.value][activeDay.value]
+    for (const meal of day.meals) {
+      meal.items.forEach((item, itemIdx) => {
+        const key = `${phase.value}|${activeDay.value}|${meal.id}|${itemIdx}`
+        if (!checks.value[key]) return
+        const scaled = scaleFoodItem(item, edits.value[key] ?? 1)
+        kcal += scaled.kcal
+        protein += scaled.protein
+      })
+    }
+    return { kcal, protein }
+  })
+
+  async function loadFromIDB() {
+    phase.value = (await get<PhaseKey>('phase')) ?? 'phase1'
+    checks.value = (await get<Record<string, true>>('checks')) ?? {}
+    edits.value = (await get<Record<string, number>>('edits')) ?? {}
+    startDate.value = (await get<string>('startDate')) ?? null
+    applyAccentColor(phase.value)
+  }
+
+  async function setPhase(p: PhaseKey) {
+    phase.value = p
+    applyAccentColor(p)
+    await set('phase', p)
+  }
+
+  function setDay(day: DayKey) {
+    activeDay.value = day
+  }
+
+  async function toggleCheck(key: string) {
+    if (checks.value[key]) delete checks.value[key]
+    else checks.value[key] = true
+    await set('checks', checks.value)
+  }
+
+  async function setEdit(key: string, mult: number) {
+    if (mult === 0) {
+      edits.value[key] = 0
+      delete checks.value[key]
+      await set('checks', checks.value)
+    } else if (mult === 1) {
+      delete edits.value[key]
+    } else {
+      edits.value[key] = mult
+    }
+    await set('edits', edits.value)
+  }
+
+  return {
+    phase,
+    activeDay,
+    checks,
+    edits,
+    startDate,
+    phaseTarget,
+    dayMacroTotals,
+    dayPlannedTotals,
+    loadFromIDB,
+    setPhase,
+    setDay,
+    toggleCheck,
+    setEdit,
+  }
 })
