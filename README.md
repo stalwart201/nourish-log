@@ -2,6 +2,8 @@
 
 A small personal nutrition logger built to keep my daily intake on track. No accounts, no social features — just a fast, offline-capable PWA I can open from my phone's home screen and log meals in seconds.
 
+> ⚠️ **Personal use only.** Meals, portions, and targets are hardcoded to my own nutrition requirements and food allergies — not intended to be used by anyone else as-is.
+
 ## 🥗 What it does
 
 - 🍳 Log meals across breakfast, pre-gym, lunch, snack, and dinner
