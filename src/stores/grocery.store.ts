@@ -5,6 +5,7 @@ import { calcGroceryTotals } from '@/utils/groceryTotals'
 import type { PhaseKey } from '@/constants/meals'
 import type { GroceryKey } from '@/constants/grocery'
 import { useMealStore } from './meal.store'
+import { useSyncStore } from './sync.store'
 
 export const useGroceryStore = defineStore('grocery', () => {
   const cart = ref<Record<string, true>>({})
@@ -27,6 +28,7 @@ export const useGroceryStore = defineStore('grocery', () => {
     if (cart.value[cartKey]) delete cart.value[cartKey]
     else cart.value[cartKey] = true
     await set('grocery-cart', cart.value)
+    await useSyncStore().push('grocery-cart', cart.value)
   }
 
   async function clearCart(phase: PhaseKey) {
@@ -35,6 +37,7 @@ export const useGroceryStore = defineStore('grocery', () => {
       if (key.startsWith(prefix)) delete cart.value[key]
     }
     await set('grocery-cart', cart.value)
+    await useSyncStore().push('grocery-cart', cart.value)
   }
 
   return { cart, totals, checkedCount, totalCount, loadFromIDB, toggleItem, clearCart }

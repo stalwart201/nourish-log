@@ -10,6 +10,18 @@ import { useWeightStore } from './stores/weight.store'
 import { useGroceryStore } from './stores/grocery.store'
 import { useUIStore } from './stores/ui.store'
 import { useSyncStore } from './stores/sync.store'
+import { adoptAccountId } from './lib/account'
+import { updateAvailable, setUpdateSW } from './lib/sw-update'
+import { registerSW } from 'virtual:pwa-register'
+
+// Must run before useSyncStore() so accountId ref initializes with the correct UUID
+const syncUrl = new URL(window.location.href)
+const incomingAccountId = syncUrl.searchParams.get('sync')
+if (incomingAccountId) {
+  adoptAccountId(incomingAccountId)
+  syncUrl.searchParams.delete('sync')
+  window.history.replaceState({}, '', syncUrl)
+}
 
 const app = createApp(App)
 const pinia = createPinia()
@@ -26,10 +38,23 @@ await useWeightStore().loadFromIDB()
 await useGroceryStore().loadFromIDB()
 useUIStore() // localStorage via pinia-plugin-persistedstate, no async needed
 
-// restore offline queue; flush + cloud-fetch wired in when Supabase session is available
 const syncStore = useSyncStore()
 await syncStore.loadQueueFromIDB()
-// if (syncStore.session && navigator.onLine) await syncStore.flushQueue()
-// if (syncStore.session) await syncStore.bootFetch()
+if (navigator.onLine) await syncStore.flushQueue()
+if (navigator.onLine) {
+  await syncStore.bootFetch()
+  await useMealStore().loadFromIDB()
+  await useSimpleStore().loadFromIDB()
+  await useWeightStore().loadFromIDB()
+  await useGroceryStore().loadFromIDB()
+}
 
 app.mount('#app')
+
+const updateSW = registerSW({
+  onNeedRefresh() {
+    updateAvailable.value = true
+  },
+  onOfflineReady() {},
+})
+setUpdateSW(updateSW)

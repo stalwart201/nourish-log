@@ -78,3 +78,15 @@ body {
 .sheet-leave-to {
   transform: translateY(100%);
 }
+
+.toast-enter-active,
+.toast-leave-active {
+  transition:
+    opacity 0.2s ease,
+    transform 0.25s ease;
+}
+.toast-enter-from,
+.toast-leave-to {
+  opacity: 0;
+  transform: translateX(-50%) translateY(12px);
+}

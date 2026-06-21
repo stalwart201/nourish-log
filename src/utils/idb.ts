@@ -13,7 +13,9 @@ export function get<T>(key: string): Promise<T | undefined> {
 }
 
 export function set(key: string, val: unknown): Promise<void> {
-  return idbSet(key, val, store)
+  // JSON round-trip strips Vue reactive Proxy wrappers before IDB's structured clone
+  const plain = val === undefined ? undefined : JSON.parse(JSON.stringify(val))
+  return idbSet(key, plain, store)
 }
 
 export function del(key: string): Promise<void> {

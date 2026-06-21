@@ -3,6 +3,7 @@ import { defineStore } from 'pinia'
 import { format, subDays } from 'date-fns'
 import { get, set } from '@/utils/idb'
 import { calcStreak, type SimpleDayLog } from '@/utils/streak'
+import { useSyncStore } from './sync.store'
 
 const EMPTY_LOG: SimpleDayLog = { protein: false, deficit: false, move: false, ontrack: false }
 
@@ -28,12 +29,14 @@ export const useSimpleStore = defineStore('simple', () => {
   async function setLog(date: string, patch: Partial<SimpleDayLog>) {
     logs.value[date] = { ...(logs.value[date] ?? EMPTY_LOG), ...patch }
     await set('simple-logs', logs.value)
+    await useSyncStore().push('simple-logs', logs.value)
   }
 
   async function markOnTrack(date: string) {
     const current = logs.value[date] ?? EMPTY_LOG
     logs.value[date] = { ...current, ontrack: !current.ontrack }
     await set('simple-logs', logs.value)
+    await useSyncStore().push('simple-logs', logs.value)
   }
 
   return { logs, streak, last7Days, loadFromIDB, setLog, markOnTrack }

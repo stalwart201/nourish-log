@@ -21,6 +21,7 @@ const tabs = [
         type="button"
         class="flex-1 py-2.5 px-0.5 rounded-full border text-xs font-semibold cursor-pointer transition-colors shadow-soft"
         :class="isActive ? 'bg-accent text-white border-accent' : 'bg-card text-muted border-line'"
+        :aria-label="tab.label"
         :aria-current="isActive ? 'page' : undefined"
         @click="navigate"
       >

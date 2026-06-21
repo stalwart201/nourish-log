@@ -2,6 +2,7 @@ import { ref, computed } from 'vue'
 import { defineStore } from 'pinia'
 import { get, set } from '@/utils/idb'
 import { START_WEIGHT_KG } from '@/constants/phases'
+import { useSyncStore } from './sync.store'
 
 export interface WeightEntry {
   date: string
@@ -29,6 +30,7 @@ export const useWeightStore = defineStore('weight', () => {
     const withoutToday = entries.value.filter((e) => e.date !== date)
     entries.value = [...withoutToday, { date, kg }].sort((a, b) => a.date.localeCompare(b.date))
     await set('weight-entries', entries.value)
+    await useSyncStore().push('weight-entries', entries.value)
   }
 
   return { entries, latestEntry, totalWeightLost, recentEntries, loadFromIDB, recordWeight }

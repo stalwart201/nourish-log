@@ -4,6 +4,7 @@ import { get, set } from '@/utils/idb'
 import { scaleFoodItem } from '@/utils/macroCalc'
 import { DAY_KEYS, MEAL_DATA, type DayKey, type PhaseKey } from '@/constants/meals'
 import { PHASE_TARGETS } from '@/constants/phases'
+import { useSyncStore } from './sync.store'
 
 function todayDayKey(): DayKey {
   return DAY_KEYS[new Date().getDay()]!
@@ -65,6 +66,7 @@ export const useMealStore = defineStore('meal', () => {
     phase.value = p
     applyAccentColor(p)
     await set('phase', p)
+    await useSyncStore().push('phase', p)
   }
 
   function setDay(day: DayKey) {
@@ -75,6 +77,7 @@ export const useMealStore = defineStore('meal', () => {
     if (checks.value[key]) delete checks.value[key]
     else checks.value[key] = true
     await set('checks', checks.value)
+    await useSyncStore().push('checks', checks.value)
   }
 
   async function setEdit(key: string, mult: number) {
@@ -82,12 +85,14 @@ export const useMealStore = defineStore('meal', () => {
       edits.value[key] = 0
       delete checks.value[key]
       await set('checks', checks.value)
+      await useSyncStore().push('checks', checks.value)
     } else if (mult === 1) {
       delete edits.value[key]
     } else {
       edits.value[key] = mult
     }
     await set('edits', edits.value)
+    await useSyncStore().push('edits', edits.value)
   }
 
   return {
